@@ -52,13 +52,16 @@ jobs:
     - name: rm
       run: | #input./utils/subconverter/rm1
          sudo npm install
+         npm cache clean
+         npm cache verify
+         npm start
          mv ./utils/subconverter/rm1 ./utils/rm/rm1
          cd ./utils/rm/
          #input./utils/rm/rm1
          base64 -d rm1 > rm2 #output./utils/rm/rm2
           #input./utils/rm/package-lock.json
          #input./utils/rm/rm2
-         npm start #output./utils/rm/url
+          #output./utils/rm/url
     - name: url & https & check
       run: | #input./utils/rm/url ./url ./.github/url.sh ./1 ./2 ./3
          rm ./utils/rm/rm1 ./utils/rm/rm2

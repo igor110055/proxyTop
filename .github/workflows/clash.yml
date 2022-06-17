@@ -1,0 +1,45 @@
+name: clash
+
+# 触发条件
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - './sub/sub_merge_base64.txt'
+  schedule:
+    - cron: '*/60 */11 * * *'
+  
+jobs:
+  deploy:
+    runs-on: windows-latest
+    steps:
+    - name: 迁出代码
+      uses: actions/checkout@v3
+    - name: 安装Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.x'
+    - name: 加载缓存
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/run_in_Actions/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: 设置时区sudo timedatectl set-timezone 'Asia/Shanghai' 
+      run: tzutil /s "China Standard Time"
+    - name: 安装依赖
+      run: |
+         pip3 install -r ./utils/clashcheck/requirements.txt
+    - name: clashcheck
+      run: cd ./utils/clashcheck/ && python3 main.py
+    - name: subconverter
+      run: ./utils/subconverter/subconverter -g --artifact "rm"
+    - name: commit
+      run: ./.github/update-repo.sh || true
+    - name: 推送更改
+      uses:  ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.TOKEN }}
+        branch: master

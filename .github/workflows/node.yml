@@ -48,7 +48,7 @@ jobs:
     - name: requirements.txt
       run: pip install -r ./utils/clashcheck/requirements.txt
     - name: main.py
-      run: cd ./utils/clashcheck/ && python main.py && python main.py && python main.py
+      run: cd ./utils/clashcheck/ && sudo chmod +x ./clash-linuxamd64 && python main.py && python main.py
     - run: ./.github/update-repo.sh || true   #output./utils/clashcheck/check.yaml
     # - run: ./.github/update-repo.sh || true   #output./utils/clashcheck/check.yaml;重复步骤以缓解有概率的push失败
 
@@ -69,14 +69,15 @@ jobs:
          git config --local user.name "GitHub Actions"
          git config --local user.email "actions@github.com"
     - name: subconverter #input./utils/clashcheck/check.yaml
-      run: ./utils/subconverter/subconverter -g --artifact "rm" #output./utils/subconverter/rm1
+      run: sudo chmod +x ./utils/subconverter/subconverter && cd ./utils/subconverter/ && ./subconverter -g --artifact "rm"
     - name: rm
       run: | #input./utils/subconverter/rm1
+         sudo npm install
          mv ./utils/subconverter/rm1 ./utils/rm/rm1
          cd ./utils/rm/
          #input./utils/rm/rm1
          base64 -d rm1 > rm2 #output./utils/rm/rm2
-         npm install #input./utils/rm/package-lock.json
+          #input./utils/rm/package-lock.json
          #input./utils/rm/rm2
          npm start #output./utils/rm/url
     - name: url & https & check
